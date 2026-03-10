@@ -1,0 +1,57 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="module-page">
+    <div class="page-header">
+        <div>
+            <h1>Crop Recommendation</h1>
+            <p>Enter soil and climate values to predict the most suitable crop.</p>
+        </div>
+        <a href="/" class="back-btn">← Back to Dashboard</a>
+    </div>
+
+    <div class="form-card">
+        <form action="/predict" method="post" class="crop-form">
+            <div class="form-grid">
+                <div>
+                    <label>Nitrogen (N)</label>
+                    <input type="number" step="any" name="N" required>
+                </div>
+
+                <div>
+                    <label>Phosphorus (P)</label>
+                    <input type="number" step="any" name="P" required>
+                </div>
+
+                <div>
+                    <label>Potassium (K)</label>
+                    <input type="number" step="any" name="K" required>
+                </div>
+
+                <div>
+                    <label>Temperature</label>
+                    <input type="number" step="any" name="temperature" required>
+                </div>
+
+                <div>
+                    <label>Humidity</label>
+                    <input type="number" step="any" name="humidity" required>
+                </div>
+
+                <div>
+                    <label>pH</label>
+                    <input type="number" step="any" name="ph" required>
+                </div>
+
+                <div class="full-width">
+                    <label>Rainfall</label>
+                    <input type="number" step="any" name="rainfall" required>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">Predict Crop</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,113 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+
+    <div class="topbar">
+        <div>
+            <h1 class="page-title">AI Driven Smart Precision Agriculture System</h1>
+            <p class="page-subtitle">Smart farming dashboard with AI-powered agriculture modules.</p>
+        </div>
+        <div class="topbar-right">
+            <div class="weather-chip">🌤 28°C | Jaipur</div>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">🌾</div>
+            <div>
+                <h5>Crop Module</h5>
+                <p>Best crop recommendation</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">🧪</div>
+            <div>
+                <h5>Fertilizer Advice</h5>
+                <p>Nutrient-based suggestions</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">💧</div>
+            <div>
+                <h5>Irrigation</h5>
+                <p>Water need prediction</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">📈</div>
+            <div>
+                <h5>Yield Prediction</h5>
+                <p>Estimated crop yield</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="module-grid">
+        <div class="module-card">
+            <h3>Crop Recommendation</h3>
+            <p>Predict the best crop using soil and climate data.</p>
+            <a href="/crop" class="module-btn">Open Module</a>
+        </div>
+
+        <div class="module-card">
+            <h3>Fertilizer Advice</h3>
+            <p>Get nutrient-based fertilizer suggestions.</p>
+            <a href="/fertilizer" class="module-btn">Open Module</a>
+        </div>
+
+        <div class="module-card">
+            <h3>Irrigation Prediction</h3>
+            <p>Check whether irrigation is required.</p>
+            <a href="/irrigation" class="module-btn">Open Module</a>
+        </div>
+
+        <div class="module-card">
+            <h3>Yield Prediction</h3>
+            <p>Estimate expected crop yield.</p>
+            <a href="/yield" class="module-btn">Open Module</a>
+        </div>
+    </div>
+
+    <div class="charts-row">
+        <div class="chart-card">
+            <h4>Soil Nutrient Overview</h4>
+            <canvas id="nutrientChart"></canvas>
+        </div>
+
+        <div class="chart-card">
+            <h4>Prediction Distribution</h4>
+            <canvas id="predictionChart"></canvas>
+        </div>
+    </div>
+
+    <div class="info-row">
+        <div class="info-card">
+            <h4>Recent Insights</h4>
+            <ul>
+                <li>Crop recommendation module is integrated with Flask.</li>
+                <li>Dashboard is ready for fertilizer, irrigation, and yield modules.</li>
+                <li>Charts are added to make the dashboard look more analytical.</li>
+            </ul>
+        </div>
+
+        <div class="info-card">
+            <h4>Smart Tips</h4>
+            <ul>
+                <li>Use realistic soil nutrient values for better predictions.</li>
+                <li>Add weather API later to improve project quality.</li>
+                <li>Prediction history can be added in the next phase.</li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

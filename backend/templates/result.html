@@ -1,0 +1,37 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="module-page">
+    <div class="page-header">
+        <div>
+            <h1>Crop Recommendation Result</h1>
+            <p>Prediction output based on the entered soil and climate values.</p>
+        </div>
+        <a href="/crop" class="back-btn">← Try Again</a>
+    </div>
+
+    <div class="result-layout">
+        <div class="result-highlight">
+            <h2>Recommended Crop</h2>
+            <div class="big-result">{{ crop }}</div>
+            <p>This crop is suitable based on the provided input values.</p>
+        </div>
+
+        {% if N is defined %}
+        <div class="result-summary">
+            <h3>Input Summary</h3>
+            <div class="summary-grid">
+                <div><strong>Nitrogen:</strong> {{ N }}</div>
+                <div><strong>Phosphorus:</strong> {{ P }}</div>
+                <div><strong>Potassium:</strong> {{ K }}</div>
+                <div><strong>Temperature:</strong> {{ temperature }}</div>
+                <div><strong>Humidity:</strong> {{ humidity }}</div>
+                <div><strong>pH:</strong> {{ ph }}</div>
+                <div><strong>Rainfall:</strong> {{ rainfall }}</div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
