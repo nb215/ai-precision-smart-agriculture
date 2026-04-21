@@ -5,7 +5,7 @@
 <div class="module-page">
     <div class="page-header">
         <div>
-            <h1>Crop Recommendation Result</h1>
+            <h1>{{ module_name }}</h1>
             <p>Prediction output based on the entered soil and climate values.</p>
         </div>
         <a href="/crop" class="back-btn">← Try Again</a>
@@ -13,9 +13,9 @@
 
     <div class="result-layout">
         <div class="result-highlight">
-            <h2>Recommended Crop</h2>
-            <div class="big-result">{{ crop }}</div>
-            <p>This crop is suitable based on the provided input values.</p>
+            <h2>Prediction Result</h2>
+            <div class="big-result">{{ prediction_text }}</div>
+            <p>This result is generated based on the provided input values.</p>
         </div>
 
         {% if N is defined %}
