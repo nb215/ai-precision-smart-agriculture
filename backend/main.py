@@ -1,5 +1,5 @@
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import os
 import joblib
 import pandas as pd
@@ -9,11 +9,19 @@ app = Flask(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.path.join(BASE_DIR, "models")
 
+# Crop model files
 crop_model_path = os.path.join(MODEL_DIR, "xgboost_crop_model.pkl")
 feature_columns_path = os.path.join(MODEL_DIR, "features_column.pkl")
 
 crop_model = joblib.load(crop_model_path)
 feature_columns = joblib.load(feature_columns_path)
+
+# Fertilizer model files
+fertilizer_model_path = os.path.join(MODEL_DIR, "fertilizer_model.pkl")
+fertilizer_label_encoder_path = os.path.join(MODEL_DIR, "fertilizer_label_encoder.pkl")
+
+fertilizer_model = joblib.load(fertilizer_model_path)
+fertilizer_label_encoder = joblib.load(fertilizer_label_encoder_path)
 
 
 @app.route("/")
@@ -89,6 +97,48 @@ def predict_crop():
             module_name="Crop Recommendation",
             prediction_text=f"Error: {str(e)}"
         )
+
+
+@app.route("/predict-fertilizer", methods=["POST"])
+def predict_fertilizer():
+    try:
+        data = request.get_json()
+
+        input_data = pd.DataFrame([{
+            "Soil_Type": data["Soil_Type"],
+            "Soil_pH": float(data["Soil_pH"]),
+            "Soil_Moisture": float(data["Soil_Moisture"]),
+            "Organic_Carbon": float(data["Organic_Carbon"]),
+            "Electrical_Conductivity": float(data["Electrical_Conductivity"]),
+            "Nitrogen_Level": int(data["Nitrogen_Level"]),
+            "Phosphorus_Level": int(data["Phosphorus_Level"]),
+            "Potassium_Level": int(data["Potassium_Level"]),
+            "Temperature": float(data["Temperature"]),
+            "Humidity": float(data["Humidity"]),
+            "Rainfall": float(data["Rainfall"]),
+            "Crop_Type": data["Crop_Type"],
+            "Crop_Growth_Stage": data["Crop_Growth_Stage"],
+            "Season": data["Season"],
+            "Irrigation_Type": data["Irrigation_Type"],
+            "Previous_Crop": data["Previous_Crop"],
+            "Region": data["Region"],
+            "Fertilizer_Used_Last_Season": float(data["Fertilizer_Used_Last_Season"]),
+            "Yield_Last_Season": float(data["Yield_Last_Season"])
+        }])
+
+        prediction = fertilizer_model.predict(input_data)
+        predicted_fertilizer = fertilizer_label_encoder.inverse_transform(prediction)[0]
+
+        return jsonify({
+            "success": True,
+            "recommended_fertilizer": predicted_fertilizer
+        })
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 400
 
 
 if __name__ == "__main__":
