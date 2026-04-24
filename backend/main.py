@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template, request, jsonify
 import os
 import joblib
@@ -12,16 +11,18 @@ MODEL_DIR = os.path.join(BASE_DIR, "models")
 # Crop model files
 crop_model_path = os.path.join(MODEL_DIR, "xgboost_crop_model.pkl")
 feature_columns_path = os.path.join(MODEL_DIR, "features_column.pkl")
-
 crop_model = joblib.load(crop_model_path)
 feature_columns = joblib.load(feature_columns_path)
 
 # Fertilizer model files
 fertilizer_model_path = os.path.join(MODEL_DIR, "fertilizer_model.pkl")
 fertilizer_label_encoder_path = os.path.join(MODEL_DIR, "fertilizer_label_encoder.pkl")
-
 fertilizer_model = joblib.load(fertilizer_model_path)
 fertilizer_label_encoder = joblib.load(fertilizer_label_encoder_path)
+
+# Yield model file
+yield_model_path = os.path.join(MODEL_DIR, "yield_model.pkl")
+yield_model = joblib.load(yield_model_path)
 
 
 @app.route("/")
@@ -71,8 +72,6 @@ def predict_crop():
         }
 
         input_df = pd.DataFrame([input_data])
-
-        # Ensure same column order as training
         input_df = input_df[feature_columns]
 
         prediction = crop_model.predict(input_df)
@@ -132,6 +131,40 @@ def predict_fertilizer():
         return jsonify({
             "success": True,
             "recommended_fertilizer": predicted_fertilizer
+        })
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 400
+
+
+@app.route("/predict-yield", methods=["POST"])
+def predict_yield():
+    try:
+        data = request.get_json()
+
+        input_data = pd.DataFrame([{
+            "Crop": data["Crop"],
+            "Region": data["Region"],
+            "Soil_Type": data["Soil_Type"],
+            "Soil_pH": float(data["Soil_pH"]),
+            "Rainfall_mm": float(data["Rainfall_mm"]),
+            "Temperature_C": float(data["Temperature_C"]),
+            "Humidity_pct": float(data["Humidity_pct"]),
+            "Fertilizer_Used_kg": float(data["Fertilizer_Used_kg"]),
+            "Irrigation": data["Irrigation"],
+            "Pesticides_Used_kg": float(data["Pesticides_Used_kg"]),
+            "Planting_Density": float(data["Planting_Density"]),
+            "Previous_Crop": data["Previous_Crop"]
+        }])
+
+        prediction = yield_model.predict(input_data)[0]
+
+        return jsonify({
+            "success": True,
+            "predicted_yield": round(float(prediction), 2)
         })
 
     except Exception as e:
