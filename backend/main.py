@@ -2,27 +2,46 @@ from flask import Flask, render_template, request, jsonify
 import os
 import joblib
 import pandas as pd
+from catboost import CatBoostClassifier, Pool
 
 app = Flask(__name__)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.path.join(BASE_DIR, "models")
 
-# Crop model files
-crop_model_path = os.path.join(MODEL_DIR, "xgboost_crop_model.pkl")
-feature_columns_path = os.path.join(MODEL_DIR, "features_column.pkl")
-crop_model = joblib.load(crop_model_path)
-feature_columns = joblib.load(feature_columns_path)
+# =========================
+# Load Crop Model
+# =========================
+crop_model = joblib.load(os.path.join(MODEL_DIR, "xgboost_crop_model.pkl"))
+feature_columns = joblib.load(os.path.join(MODEL_DIR, "features_column.pkl"))
 
-# Fertilizer model files
-fertilizer_model_path = os.path.join(MODEL_DIR, "fertilizer_model.pkl")
-fertilizer_label_encoder_path = os.path.join(MODEL_DIR, "fertilizer_label_encoder.pkl")
-fertilizer_model = joblib.load(fertilizer_model_path)
-fertilizer_label_encoder = joblib.load(fertilizer_label_encoder_path)
+# =========================
+# Load Fertilizer Model
+# =========================
+fertilizer_model = joblib.load(os.path.join(MODEL_DIR, "fertilizer_model.pkl"))
+fertilizer_label_encoder = joblib.load(os.path.join(MODEL_DIR, "fertilizer_label_encoder.pkl"))
 
-# Yield model file
-yield_model_path = os.path.join(MODEL_DIR, "yield_model.pkl")
-yield_model = joblib.load(yield_model_path)
+# =========================
+# Load Yield Model
+# =========================
+yield_model = joblib.load(os.path.join(MODEL_DIR, "yield_model.pkl"))
+
+# =========================
+# Load Irrigation Model
+# =========================
+irrigation_model = CatBoostClassifier()
+irrigation_model.load_model(os.path.join(MODEL_DIR, "irrigation_model.cbm"))
+
+irrigation_cat_cols = [
+    "Soil_Type",
+    "Crop_Type",
+    "Crop_Growth_Stage",
+    "Season",
+    "Irrigation_Type",
+    "Water_Source",
+    "Mulching_Used",
+    "Region"
+]
 
 
 @app.route("/")
@@ -40,54 +59,36 @@ def fertilizer_page():
     return render_template("fertilizer.html")
 
 
-@app.route("/irrigation")
-def irrigation_page():
-    return render_template("irrigation.html")
-
-
 @app.route("/yield")
 def yield_page():
     return render_template("yield.html")
 
 
+@app.route("/irrigation")
+def irrigation_page():
+    return render_template("irrigation.html")
+
+
 @app.route("/predict-crop", methods=["POST"])
 def predict_crop():
     try:
-        N = float(request.form["N"])
-        P = float(request.form["P"])
-        K = float(request.form["K"])
-        temperature = float(request.form["temperature"])
-        humidity = float(request.form["humidity"])
-        ph = float(request.form["ph"])
-        rainfall = float(request.form["rainfall"])
+        input_df = pd.DataFrame([{
+            "N": float(request.form["N"]),
+            "P": float(request.form["P"]),
+            "K": float(request.form["K"]),
+            "temperature": float(request.form["temperature"]),
+            "humidity": float(request.form["humidity"]),
+            "ph": float(request.form["ph"]),
+            "rainfall": float(request.form["rainfall"])
+        }])
 
-        input_data = {
-            "N": N,
-            "P": P,
-            "K": K,
-            "temperature": temperature,
-            "humidity": humidity,
-            "ph": ph,
-            "rainfall": rainfall
-        }
-
-        input_df = pd.DataFrame([input_data])
         input_df = input_df[feature_columns]
-
-        prediction = crop_model.predict(input_df)
-        predicted_crop = prediction[0]
+        prediction = crop_model.predict(input_df)[0]
 
         return render_template(
             "result.html",
             module_name="Crop Recommendation",
-            prediction_text=f"Recommended Crop: {predicted_crop}",
-            N=N,
-            P=P,
-            K=K,
-            temperature=temperature,
-            humidity=humidity,
-            ph=ph,
-            rainfall=rainfall
+            prediction_text=f"Recommended Crop: {prediction}"
         )
 
     except Exception as e:
@@ -103,7 +104,7 @@ def predict_fertilizer():
     try:
         data = request.get_json()
 
-        input_data = pd.DataFrame([{
+        input_df = pd.DataFrame([{
             "Soil_Type": data["Soil_Type"],
             "Soil_pH": float(data["Soil_pH"]),
             "Soil_Moisture": float(data["Soil_Moisture"]),
@@ -125,12 +126,12 @@ def predict_fertilizer():
             "Yield_Last_Season": float(data["Yield_Last_Season"])
         }])
 
-        prediction = fertilizer_model.predict(input_data)
-        predicted_fertilizer = fertilizer_label_encoder.inverse_transform(prediction)[0]
+        prediction = fertilizer_model.predict(input_df)
+        fertilizer_name = fertilizer_label_encoder.inverse_transform(prediction)[0]
 
         return jsonify({
             "success": True,
-            "recommended_fertilizer": predicted_fertilizer
+            "recommended_fertilizer": fertilizer_name
         })
 
     except Exception as e:
@@ -145,7 +146,7 @@ def predict_yield():
     try:
         data = request.get_json()
 
-        input_data = pd.DataFrame([{
+        input_df = pd.DataFrame([{
             "Crop": data["Crop"],
             "Region": data["Region"],
             "Soil_Type": data["Soil_Type"],
@@ -160,11 +161,53 @@ def predict_yield():
             "Previous_Crop": data["Previous_Crop"]
         }])
 
-        prediction = yield_model.predict(input_data)[0]
+        prediction = yield_model.predict(input_df)[0]
 
         return jsonify({
             "success": True,
             "predicted_yield": round(float(prediction), 2)
+        })
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 400
+
+
+@app.route("/predict-irrigation", methods=["POST"])
+def predict_irrigation():
+    try:
+        data = request.get_json()
+
+        input_df = pd.DataFrame([{
+            "Soil_Type": data["Soil_Type"],
+            "Soil_pH": float(data["Soil_pH"]),
+            "Soil_Moisture": float(data["Soil_Moisture"]),
+            "Organic_Carbon": float(data["Organic_Carbon"]),
+            "Electrical_Conductivity": float(data["Electrical_Conductivity"]),
+            "Temperature_C": float(data["Temperature_C"]),
+            "Humidity": float(data["Humidity"]),
+            "Rainfall_mm": float(data["Rainfall_mm"]),
+            "Crop_Type": data["Crop_Type"],
+            "Crop_Growth_Stage": data["Crop_Growth_Stage"],
+            "Season": data["Season"],
+            "Sunlight_Hours": float(data["Sunlight_Hours"]),
+            "Wind_Speed_kmh": float(data["Wind_Speed_kmh"]),
+            "Irrigation_Type": data["Irrigation_Type"],
+            "Water_Source": data["Water_Source"],
+            "Previous_Irrigation_mm": float(data["Previous_Irrigation_mm"]),
+            "Field_Area_hectare": float(data["Field_Area_hectare"]),
+            "Mulching_Used": data["Mulching_Used"],
+            "Region": data["Region"]
+        }])
+
+        input_pool = Pool(input_df, cat_features=irrigation_cat_cols)
+        prediction = irrigation_model.predict(input_pool)[0]
+
+        return jsonify({
+            "success": True,
+            "irrigation_need": str(prediction)
         })
 
     except Exception as e:

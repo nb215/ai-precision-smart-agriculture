@@ -1,19 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Irrigation Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="module-page">
+        <div class="form-card enhanced-form-card">
+            <div class="page-header">
+                <div>
+                    <h1>Irrigation Prediction</h1>
+                    <p>Predict irrigation requirement using soil, weather, crop, and water-source conditions.</p>
+                </div>
+                <a href="/" class="back-btn">← Back to Dashboard</a>
+            </div>
 
-{% extends "base.html" %}
+            <div class="module-tip">
+                <strong>Tip:</strong> Use quick scenarios or sample data to test the irrigation model instantly.
+            </div>
 
-{% block content %}
-<div class="module-page">
-    <div class="page-header">
-        <div>
-            <h1>Irrigation Prediction</h1>
-            <p>This module page is ready. We will connect the model next.</p>
+            <div class="quick-actions">
+                <button type="button" onclick="fillDryField()" class="quick-card">
+                    🌵 Dry Field
+                    <span>Low moisture + low rainfall</span>
+                </button>
+
+                <button type="button" onclick="fillNormalField()" class="quick-card">
+                    🌿 Normal Field
+                    <span>Balanced conditions</span>
+                </button>
+
+                <button type="button" onclick="fillWetField()" class="quick-card">
+                    💧 Wet Field
+                    <span>High moisture + rainfall</span>
+                </button>
+            </div>
+
+            <form id="irrigationForm" class="smart-form">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label for="Soil_Type">Soil Type</label>
+                        <select id="Soil_Type" required>
+                            <option value="">Select</option>
+                            <option value="Clay">Clay</option>
+                            <option value="Sandy">Sandy</option>
+                            <option value="Silt">Silt</option>
+                            <option value="Loam">Loam</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="Soil_pH">Soil pH</label>
+                        <input type="number" step="0.01" id="Soil_pH" placeholder="e.g. 6.8" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="Soil_Moisture">Soil Moisture</label>
+                        <input type="number" step="0.01" id="Soil_Moisture" placeholder="e.g. 28.5" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="Organic_Carbon">Organic Carbon</label>
+                        <input type="number" step="0.01" id="Organic_Carbon" placeholder="e.g. 0.9" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="Electrical_Conductivity">Electrical Conductivity</label>
+                        <input type="number" step="0.01" id="Electrical_Conductivity" placeholder="e.g. 1.4" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="Temperature_C">Temperature (°C)</label>
+                        <input type="number" step="0.01" id="Temperature_C" placeholder="e.g. 29" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="Humidity">Humidity (%)</label>
+                        <input type="number" step="0.01" id="Humidity" placeholder="e.g. 62" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="Rainfall_mm">Rainfall (mm)</label>
+                        <input type="number" step="0.01" id="Rainfall_mm" placeholder="e.g. 450" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="Crop_Type">Crop Type</label>
+                        <select id="Crop_Type" required>
+                            <option value="">Select</option>
+                            <option value="Wheat">Wheat</option>
+                            <option value="Rice">Rice</option>
+                            <option value="Maize">Maize</option>
+                            <option value="Cotton">Cotton</option>
+                            <option value="Potato">Potato</option>
+                            <option value="Tomato">Tomato</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="Crop_Growth_Stage">Crop Growth Stage</label>
+                        <select id="Crop_Growth_Stage" required>
+                            <option value="">Select</option>
+                            <option value="Sowing">Sowing</option>
+                            <option value="Vegetative">Vegetative</option>
+                            <option value="Flowering">Flowering</option>
+                            <option value="Harvest">Harvest</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="Season">Season</label>
+                        <select id="Season" required>
+                            <option value="">Select</option>
+                            <option value="Kharif">Kharif</option>
+                            <option value="Rabi">Rabi</option>
+                            <option value="Zaid">Zaid</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="Sunlight_Hours">Sunlight Hours</label>
+                        <input type="number" step="0.01" id="Sunlight_Hours" placeholder="e.g. 7.5" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="Wind_Speed_kmh">Wind Speed (km/h)</label>
+                        <input type="number" step="0.01" id="Wind_Speed_kmh" placeholder="e.g. 12" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="Irrigation_Type">Irrigation Type</label>
+                        <select id="Irrigation_Type" required>
+                            <option value="">Select</option>
+                            <option value="Drip">Drip</option>
+                            <option value="Sprinkler">Sprinkler</option>
+                            <option value="Canal">Canal</option>
+                            <option value="Rainfed">Rainfed</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="Water_Source">Water Source</label>
+                        <select id="Water_Source" required>
+                            <option value="">Select</option>
+                            <option value="Canal">Canal</option>
+                            <option value="Tube Well">Tube Well</option>
+                            <option value="River">River</option>
+                            <option value="Rainwater">Rainwater</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="Previous_Irrigation_mm">Previous Irrigation (mm)</label>
+                        <input type="number" step="0.01" id="Previous_Irrigation_mm" placeholder="e.g. 80" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="Field_Area_hectare">Field Area (hectare)</label>
+                        <input type="number" step="0.01" id="Field_Area_hectare" placeholder="e.g. 2.5" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="Mulching_Used">Mulching Used</label>
+                        <select id="Mulching_Used" required>
+                            <option value="">Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="Region">Region</label>
+                        <select id="Region" required>
+                            <option value="">Select</option>
+                            <option value="North">North</option>
+                            <option value="South">South</option>
+                            <option value="East">East</option>
+                            <option value="West">West</option>
+                            <option value="Central">Central</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="button-row">
+                    <button type="submit" class="primary-btn">Predict Irrigation Need</button>
+                    <button type="button" class="secondary-btn" onclick="fillIrrigationSampleData()">Use Sample Data</button>
+                    <button type="reset" class="secondary-btn" onclick="resetIrrigationUI()">Reset</button>
+                </div>
+            </form>
+
+            <div id="irrigationLoadingBox" class="loading-box hidden">
+                ⏳ Processing irrigation requirement...
+            </div>
+
+            <div id="irrigationResultBox" class="result-box hidden">
+                <h2>Irrigation Need</h2>
+                <p id="irrigationResultText"></p>
+            </div>
+
+            <div id="irrigationInsightBox" class="insight-box hidden">
+                <h3>Quick Insight</h3>
+                <p id="irrigationInsightText"></p>
+            </div>
+
+            <div id="irrigationErrorBox" class="error-box hidden">
+                <p id="irrigationErrorText"></p>
+            </div>
         </div>
-        <a href="/" class="back-btn">← Back to Dashboard</a>
     </div>
 
-    <div class="placeholder-card">
-        <h3>Module Ready</h3>
-        <p>Next step: add irrigation input fields and prediction logic.</p>
-    </div>
-</div>
-{% endblock %}
+    <script>
+        const irrigationForm = document.getElementById("irrigationForm");
+        const irrigationLoadingBox = document.getElementById("irrigationLoadingBox");
+        const irrigationResultBox = document.getElementById("irrigationResultBox");
+        const irrigationResultText = document.getElementById("irrigationResultText");
+        const irrigationInsightBox = document.getElementById("irrigationInsightBox");
+        const irrigationInsightText = document.getElementById("irrigationInsightText");
+        const irrigationErrorBox = document.getElementById("irrigationErrorBox");
+        const irrigationErrorText = document.getElementById("irrigationErrorText");
+
+        irrigationForm.addEventListener("submit", async function(e) {
+            e.preventDefault();
+
+            irrigationLoadingBox.classList.remove("hidden");
+            irrigationResultBox.classList.add("hidden");
+            irrigationInsightBox.classList.add("hidden");
+            irrigationErrorBox.classList.add("hidden");
+
+            const data = {
+                Soil_Type: document.getElementById("Soil_Type").value,
+                Soil_pH: document.getElementById("Soil_pH").value,
+                Soil_Moisture: document.getElementById("Soil_Moisture").value,
+                Organic_Carbon: document.getElementById("Organic_Carbon").value,
+                Electrical_Conductivity: document.getElementById("Electrical_Conductivity").value,
+                Temperature_C: document.getElementById("Temperature_C").value,
+                Humidity: document.getElementById("Humidity").value,
+                Rainfall_mm: document.getElementById("Rainfall_mm").value,
+                Crop_Type: document.getElementById("Crop_Type").value,
+                Crop_Growth_Stage: document.getElementById("Crop_Growth_Stage").value,
+                Season: document.getElementById("Season").value,
+                Sunlight_Hours: document.getElementById("Sunlight_Hours").value,
+                Wind_Speed_kmh: document.getElementById("Wind_Speed_kmh").value,
+                Irrigation_Type: document.getElementById("Irrigation_Type").value,
+                Water_Source: document.getElementById("Water_Source").value,
+                Previous_Irrigation_mm: document.getElementById("Previous_Irrigation_mm").value,
+                Field_Area_hectare: document.getElementById("Field_Area_hectare").value,
+                Mulching_Used: document.getElementById("Mulching_Used").value,
+                Region: document.getElementById("Region").value
+            };
+
+            try {
+                const response = await fetch("/predict-irrigation", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                irrigationLoadingBox.classList.add("hidden");
+
+                if (result.success) {
+                    const need = result.irrigation_need;
+                    irrigationResultText.innerText = need;
+
+                    let insight = "";
+                    if (need === "High") {
+                        insight = "High irrigation is required. Soil and weather conditions indicate water stress.";
+                    } else if (need === "Medium") {
+                        insight = "Moderate irrigation is recommended. Monitor soil moisture regularly.";
+                    } else {
+                        insight = "Low irrigation is needed. Current field conditions are relatively sufficient.";
+                    }
+
+                    irrigationInsightText.innerText = insight;
+                    irrigationResultBox.classList.remove("hidden");
+                    irrigationInsightBox.classList.remove("hidden");
+                } else {
+                    irrigationErrorText.innerText = result.error || "Something went wrong.";
+                    irrigationErrorBox.classList.remove("hidden");
+                }
+
+            } catch (error) {
+                irrigationLoadingBox.classList.add("hidden");
+                irrigationErrorText.innerText = "Unable to connect to the server.";
+                irrigationErrorBox.classList.remove("hidden");
+            }
+        });
+
+        function fillIrrigationSampleData() {
+            document.getElementById("Soil_Type").value = "Clay";
+            document.getElementById("Soil_pH").value = "6.8";
+            document.getElementById("Soil_Moisture").value = "24.5";
+            document.getElementById("Organic_Carbon").value = "0.85";
+            document.getElementById("Electrical_Conductivity").value = "1.2";
+            document.getElementById("Temperature_C").value = "31";
+            document.getElementById("Humidity").value = "55";
+            document.getElementById("Rainfall_mm").value = "350";
+            document.getElementById("Crop_Type").value = "Wheat";
+            document.getElementById("Crop_Growth_Stage").value = "Vegetative";
+            document.getElementById("Season").value = "Rabi";
+            document.getElementById("Sunlight_Hours").value = "8";
+            document.getElementById("Wind_Speed_kmh").value = "10";
+            document.getElementById("Irrigation_Type").value = "Drip";
+            document.getElementById("Water_Source").value = "Canal";
+            document.getElementById("Previous_Irrigation_mm").value = "70";
+            document.getElementById("Field_Area_hectare").value = "2.5";
+            document.getElementById("Mulching_Used").value = "Yes";
+            document.getElementById("Region").value = "North";
+        }
+
+        function fillDryField() {
+            fillIrrigationSampleData();
+            document.getElementById("Soil_Moisture").value = "12";
+            document.getElementById("Rainfall_mm").value = "80";
+            document.getElementById("Temperature_C").value = "36";
+            document.getElementById("Humidity").value = "35";
+        }
+
+        function fillNormalField() {
+            fillIrrigationSampleData();
+            document.getElementById("Soil_Moisture").value = "35";
+            document.getElementById("Rainfall_mm").value = "650";
+            document.getElementById("Temperature_C").value = "28";
+            document.getElementById("Humidity").value = "60";
+        }
+
+        function fillWetField() {
+            fillIrrigationSampleData();
+            document.getElementById("Soil_Moisture").value = "58";
+            document.getElementById("Rainfall_mm").value = "1800";
+            document.getElementById("Temperature_C").value = "24";
+            document.getElementById("Humidity").value = "85";
+        }
+
+        function resetIrrigationUI() {
+            irrigationResultBox.classList.add("hidden");
+            irrigationInsightBox.classList.add("hidden");
+            irrigationErrorBox.classList.add("hidden");
+            irrigationLoadingBox.classList.add("hidden");
+        }
+    </script>
+</body>
+</html>
