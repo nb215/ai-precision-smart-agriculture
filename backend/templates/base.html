@@ -35,3 +35,14 @@
 
 </body>
 </html>
+<script>
+    const predictionText = "{{ prediction_text }}";
+
+    // Extract crop name from text
+    if (predictionText.includes("Recommended Crop:")) {
+        const crop = predictionText.replace("Recommended Crop:", "").trim();
+
+        // 🔥 SAVE TO DASHBOARD
+        localStorage.setItem("lastCropPrediction", crop);
+    }
+</script>

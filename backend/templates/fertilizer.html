@@ -236,6 +236,7 @@
 
                 if (result.success) {
                     resultText.innerText = result.recommended_fertilizer;
+                    localStorage.setItem("lastFertilizerPrediction", result.recommended_fertilizer);
                     resultBox.classList.remove("hidden");
                 } else {
                     errorText.innerText = result.error || "Something went wrong.";

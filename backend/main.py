@@ -215,6 +215,18 @@ def predict_irrigation():
             "success": False,
             "error": str(e)
         }), 400
+    
+@app.route("/disease")
+def disease_page():
+    return render_template("disease.html")
+@app.route("/api/dashboard-metrics")
+def dashboard_metrics():
+    return jsonify({
+        "modules": ["Crop", "Fertilizer", "Yield", "Irrigation"],
+        "scores": [98.36, 87.85, 98.04, 99.7],
+        "models": ["XGBoost", "LightGBM", "XGBoost Regressor", "CatBoost"],
+        "types": ["Classification", "Classification", "Regression", "Classification"]
+    })
 
 
 if __name__ == "__main__":

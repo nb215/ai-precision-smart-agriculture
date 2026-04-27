@@ -191,6 +191,7 @@
                 if (result.success) {
                     const predictedYield = result.predicted_yield;
                     yieldResultText.innerText = predictedYield;
+                    localStorage.setItem("lastYieldPrediction", predictedYield + " ton/ha");
 
                     let insight = "";
                     if (predictedYield >= 160) {
