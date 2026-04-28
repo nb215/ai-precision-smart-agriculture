@@ -3,6 +3,7 @@ import os
 import joblib
 import pandas as pd
 from catboost import CatBoostClassifier, Pool
+import requests
 
 app = Flask(__name__)
 
@@ -227,6 +228,40 @@ def dashboard_metrics():
         "models": ["XGBoost", "LightGBM", "XGBoost Regressor", "CatBoost"],
         "types": ["Classification", "Classification", "Regression", "Classification"]
     })
+@app.route("/api/weather")
+def get_weather():
+
+    lat = request.args.get("lat")
+    lon = request.args.get("lon")
+
+    api_key = "af3cf9523b6fe0a25688e2081e7ce6b3"
+
+    if not lat or not lon:
+        return jsonify({"success": False, "error": "Location not provided"})
+
+    url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric"
+
+    try:
+        response = requests.get(url)
+        data = response.json()
+
+        if response.status_code != 200:
+            return jsonify({
+                "success": False,
+                "error": data.get("message")
+            })
+
+        return jsonify({
+            "success": True,
+            "city": data["name"],
+            "temperature": data["main"]["temp"],
+            "humidity": data["main"]["humidity"],
+            "wind_speed": data["wind"]["speed"],
+            "condition": data["weather"][0]["description"]
+        })
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
 
 
 if __name__ == "__main__":

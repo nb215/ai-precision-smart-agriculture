@@ -1,165 +1,167 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>AI Precision Agriculture Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
+{% extends "base.html" %}
 
-<body>
-<div class="app-layout">
+{% block content %}
 
-    <aside class="sidebar">
-        <div class="brand">🌱 AgriAI</div>
+<section class="dashboard-hero">
+    <div>
+        <h1>AI-Driven Smart Precision Agriculture System</h1>
+        <p>One intelligent platform for crop, fertilizer, yield, irrigation, and plant disease prediction.</p>
+    </div>
+    <div class="hero-badge">✅ 5 AI Modules Integrated</div>
+</section>
 
-        <nav class="nav-links">
-            <a href="/">🏠 Dashboard</a>
-            <a href="/crop">🌾 Crop Recommendation</a>
-            <a href="/fertilizer">🧪 Fertilizer Recommendation</a>
-            <a href="/yield">📈 Yield Prediction</a>
-            <a href="/irrigation">💧 Irrigation Prediction</a>
-            <a href="/disease">🌿 Disease Detection</a>
-        </nav>
-    </aside>
+<section class="weather-panel">
+    <div>
+        <h3>🌦️ Real-Time Weather</h3>
+        <p id="weatherLocation">Loading location...</p>
+    </div>
 
-    <main class="main-content">
+    <div class="weather-details">
+        <div>
+            <span>🌡️ Temperature</span>
+            <strong id="weatherTemp">-- °C</strong>
+        </div>
+        <div>
+            <span>💧 Humidity</span>
+            <strong id="weatherHumidity">--%</strong>
+        </div>
+        <div>
+            <span>🌬️ Wind</span>
+            <strong id="weatherWind">-- m/s</strong>
+        </div>
+        <div>
+            <span>☁️ Condition</span>
+            <strong id="weatherCondition">--</strong>
+        </div>
+    </div>
 
-        <section class="dashboard-hero">
-            <div>
-                <h1>AI-Driven Smart Precision Agriculture System</h1>
-                <p>One intelligent platform for crop, fertilizer, yield, irrigation, and plant disease prediction.</p>
-            </div>
-            <div class="hero-badge">✅ 5 AI Modules Integrated</div>
-        </section>
+    <div class="weather-alert" id="weatherAlert">
+        Checking weather alerts...
+    </div>
+</section>
 
-        <section class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon">🌾</div>
-                <div>
-                    <h5>Crop Recommendation</h5>
-                    <p>XGBoost • 98.36%</p>
-                </div>
-            </div>
+<section class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon">🌾</div>
+        <div>
+            <h5>Crop Recommendation</h5>
+            <p>XGBoost • 98.36%</p>
+        </div>
+    </div>
 
-            <div class="stat-card">
-                <div class="stat-icon">🧪</div>
-                <div>
-                    <h5>Fertilizer Recommendation</h5>
-                    <p>LightGBM • 87.85%</p>
-                </div>
-            </div>
+    <div class="stat-card">
+        <div class="stat-icon">🧪</div>
+        <div>
+            <h5>Fertilizer Recommendation</h5>
+            <p>LightGBM • 87.85%</p>
+        </div>
+    </div>
 
-            <div class="stat-card">
-                <div class="stat-icon">📈</div>
-                <div>
-                    <h5>Yield Prediction</h5>
-                    <p>XGBoost Regressor • R² 0.9804</p>
-                </div>
-            </div>
+    <div class="stat-card">
+        <div class="stat-icon">📈</div>
+        <div>
+            <h5>Yield Prediction</h5>
+            <p>XGBoost Regressor • R² 0.9804</p>
+        </div>
+    </div>
 
-            <div class="stat-card">
-                <div class="stat-icon">💧</div>
-                <div>
-                    <h5>Irrigation Prediction</h5>
-                    <p>CatBoost • 99.7%</p>
-                </div>
-            </div>
-        </section>
+    <div class="stat-card">
+        <div class="stat-icon">💧</div>
+        <div>
+            <h5>Irrigation Prediction</h5>
+            <p>CatBoost • 99.7%</p>
+        </div>
+    </div>
+</section>
 
-        <section class="module-grid dashboard-module-grid">
+<section class="module-grid dashboard-module-grid">
 
-            <div class="module-card">
-                <div class="module-emoji">🌾</div>
-                <h3>Crop Recommendation</h3>
-                <p>Suggests the best crop using NPK, pH, temperature, humidity, and rainfall.</p>
-                <a href="/crop" class="module-btn">Open Module</a>
-            </div>
+    <div class="module-card">
+        <div class="module-emoji">🌾</div>
+        <h3>Crop Recommendation</h3>
+        <p>Suggests the best crop using NPK, pH, temperature, humidity, and rainfall.</p>
+        <a href="/crop" class="module-btn">Open Module</a>
+    </div>
 
-            <div class="module-card">
-                <div class="module-emoji">🧪</div>
-                <h3>Fertilizer Recommendation</h3>
-                <p>Recommends fertilizer using soil, crop, nutrient, and weather conditions.</p>
-                <a href="/fertilizer" class="module-btn">Open Module</a>
-            </div>
+    <div class="module-card">
+        <div class="module-emoji">🧪</div>
+        <h3>Fertilizer Recommendation</h3>
+        <p>Recommends fertilizer using soil, crop, nutrient, and weather conditions.</p>
+        <a href="/fertilizer" class="module-btn">Open Module</a>
+    </div>
 
-            <div class="module-card">
-                <div class="module-emoji">📈</div>
-                <h3>Yield Prediction</h3>
-                <p>Predicts crop yield using farm, weather, fertilizer, and crop parameters.</p>
-                <a href="/yield" class="module-btn">Open Module</a>
-            </div>
+    <div class="module-card">
+        <div class="module-emoji">📈</div>
+        <h3>Yield Prediction</h3>
+        <p>Predicts crop yield using farm, weather, fertilizer, and crop parameters.</p>
+        <a href="/yield" class="module-btn">Open Module</a>
+    </div>
 
-            <div class="module-card">
-                <div class="module-emoji">💧</div>
-                <h3>Irrigation Prediction</h3>
-                <p>Predicts irrigation need as Low, Medium, or High using CatBoost.</p>
-                <a href="/irrigation" class="module-btn">Open Module</a>
-            </div>
+    <div class="module-card">
+        <div class="module-emoji">💧</div>
+        <h3>Irrigation Prediction</h3>
+        <p>Predicts irrigation need as Low, Medium, or High using CatBoost.</p>
+        <a href="/irrigation" class="module-btn">Open Module</a>
+    </div>
 
-            <div class="module-card disease-card">
-                <div class="module-emoji">🌿</div>
-                <h3>Plant Disease Detection</h3>
-                <p>Upcoming CNN-based module for leaf image disease detection.</p>
-                <a href="/disease" class="module-btn">Coming Soon</a>
-            </div>
+    <div class="module-card disease-card">
+        <div class="module-emoji">🌿</div>
+        <h3>Plant Disease Detection</h3>
+        <p>Upcoming CNN-based module for leaf image disease detection.</p>
+        <a href="/disease" class="module-btn">Coming Soon</a>
+    </div>
 
-        </section>
+</section>
 
-        <section class="charts-row">
-            <div class="chart-card">
-                <h4>📊 Model Performance Chart</h4>
-                <canvas id="performanceChart" style="height:300px;"></canvas>
-            </div>
+<section class="charts-row">
+    <div class="chart-card">
+        <h4>📊 Model Performance Chart</h4>
+        <canvas id="performanceChart"></canvas>
+    </div>
 
-            <div class="chart-card">
-                <h4>🧠 Module Type Chart</h4>
-                <canvas id="typeChart" style="height:300px;"></canvas>
-            </div>
-        </section>
+    <div class="chart-card">
+        <h4>🧠 Module Type Chart</h4>
+        <canvas id="typeChart"></canvas>
+    </div>
+</section>
 
-        <section class="charts-row">
-            <div class="info-card">
-                <h4>🕘 Recent Predictions</h4>
+<section class="charts-row">
+    <div class="info-card">
+        <h4>🕘 Recent Predictions</h4>
 
-                <div class="recent-grid">
-                    <div class="recent-card">
-                        <span>🌾 Crop</span>
-                        <strong id="lastCrop">No prediction yet</strong>
-                    </div>
-
-                    <div class="recent-card">
-                        <span>🧪 Fertilizer</span>
-                        <strong id="lastFertilizer">No prediction yet</strong>
-                    </div>
-
-                    <div class="recent-card">
-                        <span>📈 Yield</span>
-                        <strong id="lastYield">No prediction yet</strong>
-                    </div>
-
-                    <div class="recent-card">
-                        <span>💧 Irrigation</span>
-                        <strong id="lastIrrigation">No prediction yet</strong>
-                    </div>
-                </div>
+        <div class="recent-grid">
+            <div class="recent-card">
+                <span>🌾 Crop</span>
+                <strong id="lastCrop">No prediction yet</strong>
             </div>
 
-            <div class="info-card">
-                <h4>🌱 Smart Farming Insights</h4>
-                <ul>
-                    <li>Monitor soil moisture before irrigation.</li>
-                    <li>Use fertilizer according to NPK and soil conditions.</li>
-                    <li>Use yield prediction for productivity planning.</li>
-                    <li>Avoid over-irrigation during high rainfall periods.</li>
-                    <li>Plant disease detection helps identify crop health issues early.</li>
-                </ul>
+            <div class="recent-card">
+                <span>🧪 Fertilizer</span>
+                <strong id="lastFertilizer">No prediction yet</strong>
             </div>
-        </section>
 
-    </main>
-</div>
+            <div class="recent-card">
+                <span>📈 Yield</span>
+                <strong id="lastYield">No prediction yet</strong>
+            </div>
 
-<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
-</body>
-</html>
+            <div class="recent-card">
+                <span>💧 Irrigation</span>
+                <strong id="lastIrrigation">No prediction yet</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-card">
+        <h4>🌱 Smart Farming Insights</h4>
+        <ul>
+            <li>Monitor soil moisture before irrigation.</li>
+            <li>Use fertilizer according to NPK and soil conditions.</li>
+            <li>Use yield prediction for productivity planning.</li>
+            <li>Avoid over-irrigation during high rainfall periods.</li>
+            <li>Plant disease detection helps identify crop health issues early.</li>
+        </ul>
+    </div>
+</section>
+
+{% endblock %}

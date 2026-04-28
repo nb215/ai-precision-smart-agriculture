@@ -68,8 +68,48 @@ function loadRecentPredictions() {
     document.getElementById("lastIrrigation").innerText =
         localStorage.getItem("lastIrrigationPrediction") || "No prediction yet";
 }
+async function loadWeather() {
+
+    if (!navigator.geolocation) {
+        document.getElementById("weatherAlert").innerText =
+            "Geolocation not supported ❌";
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(async (position) => {
+
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+
+        try {
+            const response = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
+            const data = await response.json();
+
+            if (!data.success) {
+                document.getElementById("weatherAlert").innerText = data.error;
+                return;
+            }
+
+            document.getElementById("weatherLocation").innerText = "📍 " + data.city;
+            document.getElementById("weatherTemp").innerText = data.temperature + " °C";
+            document.getElementById("weatherHumidity").innerText = data.humidity + "%";
+            document.getElementById("weatherWind").innerText = data.wind_speed + " m/s";
+            document.getElementById("weatherCondition").innerText = data.condition;
+            document.getElementById("weatherAlert").innerText = "Weather loaded ✅";
+
+        } catch (error) {
+            document.getElementById("weatherAlert").innerText =
+                "Error loading weather ❌";
+        }
+
+    }, () => {
+        document.getElementById("weatherAlert").innerText =
+            "Allow location permission ❌";
+    });
+}
 
 document.addEventListener("DOMContentLoaded", () => {
     loadDashboardMetrics();
     loadRecentPredictions();
+    loadWeather();
 });
